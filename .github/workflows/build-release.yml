@@ -27,17 +27,10 @@ jobs:
 
       - name: Install Rust
         run: |
-          bash <(curl --proto '=https' --tlsv1.2 -sS ${{ secrets.rustup }}) ${{ matrix.target }}
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
       - name: Install cross
         run: cargo install cross
-
-      - name: Install upx
-        run: |
-          wget https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-amd64_linux.tar.xz
-          tar Jxf upx-4.2.4-amd64_linux.tar.xz
-          sudo \cp -a upx-4.2.4-amd64_linux/upx /usr/bin/upx
-          rm -rf upx-4.2.4-amd64_linux*
 
       - name: Build ${{ matrix.target }}
         timeout-minutes: 120
@@ -48,7 +41,7 @@ jobs:
           echo shadowsocks_version="$shadowsocks_version" >> "$GITHUB_ENV"
           git checkout $(git describe --tags `git rev-list --tags --max-count=1`)
           cd build
-          ./build-release -t ${{ matrix.target }} -f full -u
+          ./build-release -t ${{ matrix.target }} -f full
           cd release
           sha256sum shadowsocks-$shadowsocks_version.${{ matrix.target }}.tar.xz > shadowsocks-$shadowsocks_version.${{ matrix.target }}.tar.xz.sha256
 
